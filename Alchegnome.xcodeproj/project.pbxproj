@@ -20,6 +20,7 @@
 		5D1D217B176BA6170016DDCA /* SearchViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5D1D2179176BA6170016DDCA /* SearchViewController.xib */; };
 		5D1D217F176BA6B30016DDCA /* ResultsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5D1D217D176BA6B30016DDCA /* ResultsViewController.m */; };
 		5D38DA22176CD48800B793BD /* ResultsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5D38DA21176CD48800B793BD /* ResultsViewController.xib */; };
+		5D38DA25176D011A00B793BD /* TweetResult.m in Sources */ = {isa = PBXBuildFile; fileRef = 5D38DA24176D011A00B793BD /* TweetResult.m */; };
 		5DE1F220176C1451005FC735 /* GradientView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5DE1F21F176C1451005FC735 /* GradientView.xib */; };
 		5DE1F223176C1531005FC735 /* GradientView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5DE1F222176C1530005FC735 /* GradientView.m */; };
 		5DE1F225176C39CE005FC735 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DE1F224176C39CE005FC735 /* QuartzCore.framework */; };
@@ -46,6 +47,8 @@
 		5D1D217C176BA6B30016DDCA /* ResultsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResultsViewController.h; sourceTree = "<group>"; };
 		5D1D217D176BA6B30016DDCA /* ResultsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResultsViewController.m; sourceTree = "<group>"; };
 		5D38DA21176CD48800B793BD /* ResultsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ResultsViewController.xib; sourceTree = "<group>"; };
+		5D38DA23176D011900B793BD /* TweetResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TweetResult.h; sourceTree = "<group>"; };
+		5D38DA24176D011A00B793BD /* TweetResult.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TweetResult.m; sourceTree = "<group>"; };
 		5DE1F21F176C1451005FC735 /* GradientView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GradientView.xib; sourceTree = "<group>"; };
 		5DE1F221176C1530005FC735 /* GradientView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GradientView.h; sourceTree = "<group>"; };
 		5DE1F222176C1530005FC735 /* GradientView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GradientView.m; sourceTree = "<group>"; };
@@ -115,6 +118,8 @@
 				5D1D217C176BA6B30016DDCA /* ResultsViewController.h */,
 				5D1D217D176BA6B30016DDCA /* ResultsViewController.m */,
 				5D38DA21176CD48800B793BD /* ResultsViewController.xib */,
+				5D38DA23176D011900B793BD /* TweetResult.h */,
+				5D38DA24176D011A00B793BD /* TweetResult.m */,
 			);
 			path = Alchegnome;
 			sourceTree = "<group>";
@@ -239,6 +244,7 @@
 				5D1D217A176BA6170016DDCA /* SearchViewController.m in Sources */,
 				5D1D217F176BA6B30016DDCA /* ResultsViewController.m in Sources */,
 				5DE1F223176C1531005FC735 /* GradientView.m in Sources */,
+				5D38DA25176D011A00B793BD /* TweetResult.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

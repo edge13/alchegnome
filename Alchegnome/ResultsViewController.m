@@ -9,7 +9,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import "ResultsViewController.h"
 #import "GradientView.h"
-#import "AFNetworking.h"
+#import "TweetResult.h"
 
 CGFloat const FrameWidth = 48.0f;
 CGFloat const FrameHeight = 48.0f;
@@ -17,8 +17,8 @@ CGFloat const FrameHeight = 48.0f;
 NSInteger const NumFramesX = 16;
 NSInteger const NumFramesY = 20;
 
-NSInteger const OffsetX = 0;//24;
-NSInteger const OffsetY = 0;//24;
+NSInteger const OffsetX = 24;
+NSInteger const OffsetY = 24;
 
 NSInteger const ExplosionWidth = 5;
 NSInteger const ExplosionHeight = 5;
@@ -30,6 +30,7 @@ NSInteger const RandomY = 300;
 
 @property (strong, nonatomic) NSMutableArray *gradientViews;
 @property (strong, nonatomic) NSMutableArray *shuffledGradientViews;
+@property (strong, nonatomic) NSArray *gradientColors;
 @property (strong, nonatomic) NSArray *explodedViews;
 @property (strong, nonatomic) UINib *gradientViewNib;
 @property (assign, nonatomic) NSInteger currentIndex;
@@ -41,27 +42,49 @@ NSInteger const RandomY = 300;
 - (void)viewDidLoad {
     [super viewDidLoad];
 	
-	/*
-	 NSURL *url = [NSURL URLWithString:@""];
-	 NSURLRequest *request = [NSURLRequest requestWithURL:url];
-	 [AFJSONRequestOperation JSONRequestOperationWithRequest:request success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
-	 
-	 } failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON) {
-	 NSLog(@"Error: %@", error);
-	 }];*/
+	self.gradientColors = @[@"aaee23", @"bceb1b", @"c9e916", @"d3e811", @"dde60d", @"e0e60c", @"e7e509", @"f0e305", @"f4e303", @"f9e201", @"f8da01", @"f5cc01", @"f2bd01", @"efb001", @"eca201", @"e89201", @"e58301", @"e17301", @"de6701", @"db5501"];
+
 	
 	self.gradientViewNib = [UINib nibWithNibName:@"GradientView" bundle:[NSBundle mainBundle]];
 	
+	self.results = [self.results sortedArrayUsingComparator:^NSComparisonResult(TweetResult *obj1, TweetResult *obj2) {
+		if (obj1.sentimentScore.floatValue > obj2.sentimentScore.floatValue)
+			return NSOrderedAscending;
+		else
+			return NSOrderedDescending;
+	}];
+	
+	NSLog(@"max=%f", [[[self.results objectAtIndex:0] sentimentScore] floatValue]);
+	NSLog(@"min=%f", [[[self.results lastObject] sentimentScore] floatValue]);
+	
+	TweetResult *bestResult = [self.results objectAtIndex:0];
+	TweetResult *worstResult = [self.results lastObject];
+	
+	
+	
 	
 	self.gradientViews = [[NSMutableArray alloc] init];
-	for (int y = 0; y < NumFramesY; y++) {
-		for (int x = 0; x < NumFramesX; x++) {
-			GradientView *gradientView = [[self.gradientViewNib instantiateWithOwner:nil options:nil] lastObject];
+	for (NSInteger y = 0; y < NumFramesY; y++) {
+		
+		CGFloat totalScore = 0;
+		
+		for (NSInteger x = 0; x < NumFramesX; x++) {
+			if (y * NumFramesX + x >= self.results.count)
+				break;
 			
-			NSLog(@"width=%f", gradientView.frame.size.width);
-			NSLog(@"position=%f", x * FrameWidth - OffsetX);
+			GradientView *gradientView = [[self.gradientViewNib instantiateWithOwner:nil options:nil] lastObject];
 			gradientView.destinationX = x * FrameWidth - OffsetX;
 			gradientView.destinationY = y * FrameHeight - OffsetY;
+			
+			TweetResult *result = [self.results objectAtIndex:y * NumFramesX + x];
+			
+			totalScore += result.sentimentScore.floatValue;
+			
+
+			
+			//NSLog(@"tweet score=%f, gradientIndex=%d", result.sentimentScore.floatValue, gradientIndex);
+			
+
 			
 			CGRect frame = gradientView.frame;
 			frame.origin.x = [self randomizeX:gradientView.destinationX];
@@ -69,6 +92,25 @@ NSInteger const RandomY = 300;
 			gradientView.frame = frame;
 			
 			[self.gradientViews addObject:gradientView];
+		}
+		
+		CGFloat averageScore = totalScore / NumFramesX;
+		NSInteger gradientIndex = 10;
+		if (averageScore > 0) {
+			CGFloat ratio = averageScore / bestResult.sentimentScore.floatValue;
+			gradientIndex -= 10 * ratio;
+		}
+		else {
+			CGFloat ratio = averageScore / worstResult.sentimentScore.floatValue;
+			gradientIndex += 9 * ratio;
+		}
+		
+		for (NSInteger x = 0; x < NumFramesX; x++) {
+			if (y * NumFramesX + x >= self.results.count)
+				break;
+			
+			GradientView *gradientView = [self.gradientViews objectAtIndex:y * NumFramesX + x];
+			gradientView.overlayView.backgroundColor = [self colorFromHex:[self.gradientColors objectAtIndex:gradientIndex]];
 		}
 	}
 	
@@ -128,7 +170,7 @@ NSInteger const RandomY = 300;
 	return destinationY + arc4random_uniform(RandomY) - RandomY / 2;
 }
 
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+- (void)touchEvent:(NSSet *)touches {
 	CGPoint touchPoint = [touches.anyObject locationInView:self.view];
 	//GradientView *gradientView = [self.gradientViews objectAtIndex:[self indexFromPoint:touchPoint]];
 	
@@ -147,23 +189,12 @@ NSInteger const RandomY = 300;
 	self.explodedViews = explosionViews;
 }
 
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+	[self touchEvent:touches];
+}
+
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
-	CGPoint touchPoint = [touches.anyObject locationInView:self.view];
-	//GradientView *gradientView = [self.gradientViews objectAtIndex:[self indexFromPoint:touchPoint]];
-	
-	NSArray *explosionViews = [self collectNearbyViewsFromPoint:touchPoint];
-	
-	for (GradientView *gradientView in explosionViews) {
-		if (![self.explodedViews containsObject:gradientView])
-			[self explodeGradientView:gradientView];
-	}
-	
-	for (GradientView *gradientView in self.explodedViews) {
-		if (![explosionViews containsObject:gradientView]) {
-			[self animateGradientViewIntoPosition:gradientView];
-		}
-	}
-	self.explodedViews = explosionViews;
+	[self touchEvent:touches];
 }
 
 - (void)explodeGradientView:(GradientView *)gradientView {
@@ -195,14 +226,11 @@ NSInteger const RandomY = 300;
 	NSInteger yIndex = point.y / FrameHeight;
 	NSInteger xIndex = point.x / FrameWidth;
 	
-	NSLog(@"selected index=%d,%d", xIndex, yIndex);
-	
 	NSMutableArray *views = [[NSMutableArray alloc] initWithCapacity:ExplosionWidth * ExplosionHeight];
 	
 	for (int x = xIndex - ExplosionWidth / 2; x <= xIndex + ExplosionWidth / 2; x++) {
 		for (int y = yIndex - ExplosionHeight / 2; y <= yIndex + ExplosionHeight / 2; y++) {
 			if (x >= 0 && x < NumFramesX && y >= 0 && y < NumFramesY) {
-				NSLog(@"picking view with x=%d, y=%d", x, y);
 				GradientView *gradientView = [self.gradientViews objectAtIndex:NumFramesX * y + x];
 				[views addObject:gradientView];
 			}
@@ -217,15 +245,15 @@ NSInteger const RandomY = 300;
 	return NumFramesX * yIndex + xIndex;
 }
 
-/*
-- (CGFloat)proximityToCenterWithX:(NSInteger)destinationX y:(NSInteger)destinationY {
-	CGFloat xDistance = ABS(destinationX + FrameWidth / 2 - self.view.frame.size.width / 2);
-	CGFloat yDistance = ABS(destinationY + FrameHeight / 2 - self.view.frame.size.height / 2);
+- (UIColor *)colorFromHex:(NSString*)hexString {
+	if (hexString == nil)
+		return [UIColor blackColor];
 	
-	CGFloat average = xDistance + yDistance / 2;
+	NSScanner *scanner = [NSScanner scannerWithString:hexString];
+	unsigned hex;
+	[scanner scanHexInt:&hex];
 	
-	return MIN(1, average / (self.view.frame.size.width / 2));
+	return [UIColor colorWithRed:((float)((hex & 0xFF0000) >> 16))/255.0 green:((float)((hex & 0xFF00) >> 8))/255.0 blue:((float)(hex & 0xFF))/255.0 alpha:1.0f];
 }
- */
 
 @end

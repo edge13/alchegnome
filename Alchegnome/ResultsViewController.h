@@ -10,4 +10,6 @@
 
 @interface ResultsViewController : UIViewController
 
+@property (strong, nonatomic) NSArray *results;
+
 @end

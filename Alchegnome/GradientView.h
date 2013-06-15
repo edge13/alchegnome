@@ -13,4 +13,6 @@
 @property (assign, nonatomic) NSInteger destinationX;
 @property (assign, nonatomic) NSInteger destinationY;
 
+@property (weak, nonatomic) IBOutlet UIView *overlayView;
+
 @end

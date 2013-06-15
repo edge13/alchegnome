@@ -10,6 +10,4 @@
 
 @implementation GradientView
 
-
-
 @end

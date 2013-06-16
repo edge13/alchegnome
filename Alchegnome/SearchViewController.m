@@ -15,6 +15,7 @@
 NSInteger const BubbleFrames = 9;
 NSInteger const HairFrames = 10;
 NSInteger const SmokeFrames = 10;
+NSInteger const BeakerFrames = 6;
 
 @interface SearchViewController ()
 
@@ -22,9 +23,25 @@ NSInteger const SmokeFrames = 10;
 @property (assign, nonatomic) NSInteger bubblesRightFrame;
 @property (assign, nonatomic) NSInteger hairFrame;
 @property (assign, nonatomic) NSInteger smokeFrame;
+@property (assign, nonatomic) NSInteger beakerFrame;
+
+@property (assign, nonatomic) NSInteger greenBubblesFrame;
+@property (assign, nonatomic) NSInteger yellowBubblesFrame;
+@property (assign, nonatomic) NSInteger orangeBubblesFrame;
 
 @property (strong, nonatomic) ResultsViewController *resultsController;
 @property (assign, nonatomic) BOOL resultsVisible;
+
+@property (strong, nonatomic) NSTimer *smokeTimer;
+@property (strong, nonatomic) NSTimer *hairTimer;
+@property (strong, nonatomic) NSTimer *leftBubbleTimer;
+@property (strong, nonatomic) NSTimer *rightBubbleTimer;
+@property (strong, nonatomic) NSTimer *beakerTimer;
+@property (strong, nonatomic) NSTimer *greenBubblesTimer;
+@property (strong, nonatomic) NSTimer *yellowBubblesTimer;
+@property (strong, nonatomic) NSTimer *orangeBubblesTimer;
+
+@property (strong, nonatomic) NSDateFormatter *formatter;
 
 @end
 
@@ -35,6 +52,8 @@ NSInteger const SmokeFrames = 10;
 	self.navigationController.navigationBarHidden = YES;
 	
 	self.searchField.font = [UIFont fontWithName:@"Klinic Slab" size:30.0f];
+	self.formatter = [[NSDateFormatter alloc] init];
+	self.formatter.dateFormat = @"EEE MMM d HH:mm:ss ZZZ yyyy";
 	
 	[self animateGearImageView:self.gearLeft duration:3.0f angle:-M_PI*2];
 	[self animateGearImageView:self.gearMiddle duration:2.0f angle:-M_PI*2];
@@ -49,23 +68,43 @@ NSInteger const SmokeFrames = 10;
 
 - (void)initializeSmokeView {
 	self.smokeFrame = 1;
-	[NSTimer scheduledTimerWithTimeInterval:0.14f target:self selector:@selector(updateSmoke:) userInfo:nil repeats:YES];
+	self.smokeTimer = [NSTimer scheduledTimerWithTimeInterval:0.14f target:self selector:@selector(updateSmoke:) userInfo:nil repeats:YES];
 }
 
 - (void)initializeBubbles {
 	self.bubblesLeftFrame = 1;
-	[NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateLeftBubbles:) userInfo:nil repeats:YES];
+	self.leftBubbleTimer = [NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateLeftBubbles:) userInfo:nil repeats:YES];
 	
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.0f * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
 		self.bubblesRightFrame = 1;
-		[NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateRightBubbles:) userInfo:nil repeats:YES];
+		self.rightBubbleTimer = [NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateRightBubbles:) userInfo:nil repeats:YES];
 	});
 	
 }
 
+- (void)initializeLoadingBubbles {
+	self.greenBubblesFrame = 1;
+	self.greenBubblesTimer = [NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateGreenBubbles:) userInfo:nil repeats:YES];
+	
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.0f * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+		self.yellowBubblesFrame = 1;
+		self.yellowBubblesTimer = [NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateYellowBubbles:) userInfo:nil repeats:YES];
+	});
+	
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.0f * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+		self.orangeBubblesFrame = 1;
+		self.orangeBubblesTimer = [NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateOrangeBubbles:) userInfo:nil repeats:YES];
+	});
+}
+
 - (void)initializeHairView {
 	self.hairFrame = 1;
-	[NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateHair:) userInfo:nil repeats:YES];
+	self.hairTimer = [NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateHair:) userInfo:nil repeats:YES];
+}
+
+- (void)initializeBeakerView {
+	self.beakerFrame = 1;
+	self.beakerTimer = [NSTimer scheduledTimerWithTimeInterval:0.18f target:self selector:@selector(updateBeaker:) userInfo:nil repeats:YES];
 }
 
 - (void)updateSmoke:(NSTimer *)timer {
@@ -84,20 +123,59 @@ NSInteger const SmokeFrames = 10;
 		[timer invalidate];
 		CGFloat randomDelay = 0.5f + arc4random_uniform(10) / 15.0f;
 		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, randomDelay * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-			[NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateLeftBubbles:) userInfo:nil repeats:YES];
+			self.leftBubbleTimer = [NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateLeftBubbles:) userInfo:nil repeats:YES];
 		});
 	}
 }
 
 - (void)updateRightBubbles:(NSTimer *)timer {
-	self.bubblesRight.image = [UIImage imageNamed:[NSString stringWithFormat:@"bubble2_animation_%d", self.bubblesRightFrame]];
+	self.bubblesRight.image = [UIImage imageNamed:[NSString stringWithFormat:@"bubble_animation_%d", self.bubblesRightFrame]];
 	self.bubblesRightFrame++;
 	if (self.bubblesRightFrame > BubbleFrames) {
 		self.bubblesRightFrame = 1;
 		[timer invalidate];
+		CGFloat randomDelay = 0.5f + arc4random_uniform(10) / 15.0f;
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, randomDelay * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+			self.rightBubbleTimer = [NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateRightBubbles:) userInfo:nil repeats:YES];
+		});
+	}
+}
+
+- (void)updateGreenBubbles:(NSTimer *)timer {
+	self.greenBubbles.image = [UIImage imageNamed:[NSString stringWithFormat:@"green_animation_%d", self.greenBubblesFrame]];
+	self.greenBubblesFrame++;
+	if (self.greenBubblesFrame > BubbleFrames) {
+		self.greenBubblesFrame = 1;
+		[timer invalidate];
 		CGFloat randomDelay = 1.0f + arc4random_uniform(10) / 15.0f;
 		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, randomDelay * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-			[NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateRightBubbles:) userInfo:nil repeats:YES];
+			self.greenBubblesTimer = [NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateGreenBubbles:) userInfo:nil repeats:YES];
+		});
+	}
+}
+
+- (void)updateYellowBubbles:(NSTimer *)timer {
+	self.yellowBubbles.image = [UIImage imageNamed:[NSString stringWithFormat:@"yellow_animation_%d", self.yellowBubblesFrame]];
+	self.yellowBubblesFrame++;
+	if (self.yellowBubblesFrame > BubbleFrames) {
+		self.yellowBubblesFrame = 1;
+		[timer invalidate];
+		CGFloat randomDelay = 1.0f + arc4random_uniform(10) / 15.0f;
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, randomDelay * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+			self.yellowBubblesTimer = [NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateYellowBubbles:) userInfo:nil repeats:YES];
+		});
+	}
+}
+
+- (void)updateOrangeBubbles:(NSTimer *)timer {
+	self.orangeBubbles.image = [UIImage imageNamed:[NSString stringWithFormat:@"orange_animation_%d", self.orangeBubblesFrame]];
+	self.orangeBubblesFrame++;
+	if (self.orangeBubblesFrame > BubbleFrames) {
+		self.orangeBubblesFrame = 1;
+		[timer invalidate];
+		CGFloat randomDelay = 1.0f + arc4random_uniform(10) / 15.0f;
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, randomDelay * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+			self.orangeBubblesTimer = [NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateOrangeBubbles:) userInfo:nil repeats:YES];
 		});
 	}
 }
@@ -110,6 +188,13 @@ NSInteger const SmokeFrames = 10;
 	}
 }
 
+- (void)updateBeaker:(NSTimer *)timer {
+	self.beakerView.image = [UIImage imageNamed:[NSString stringWithFormat:@"beakers_animation_%d", self.beakerFrame]];
+	self.beakerFrame++;
+	if (self.beakerFrame > BeakerFrames)
+		self.beakerFrame = 1;
+}
+
 - (void)animateGearImageView:(UIImageView *)gearImageView duration:(CGFloat)duration angle:(CGFloat)angle {
 	CABasicAnimation *rotation = [CABasicAnimation animationWithKeyPath:@"transform.rotation"];
 	rotation.byValue = @(angle);
@@ -120,6 +205,41 @@ NSInteger const SmokeFrames = 10;
 
 - (IBAction)search:(id)sender {
 	[self.view endEditing:NO];
+	
+	[UIView animateWithDuration:1.0f animations:^{
+		self.searchField.alpha = 0.0f;
+		self.searchButton.alpha = 0.0f;
+		self.bubblesLeft.alpha = 0.0f;
+		self.bubblesRight.alpha = 0.0f;
+		self.gearLeft.alpha = 0.0f;
+		self.gearMiddle.alpha = 0.0f;
+		self.gearRight.alpha = 0.0f;
+		self.machineImage.alpha = 0.0f;
+		self.filterButton.alpha = 0.0f;
+		self.smokeView.alpha = 0.0f;
+		
+		self.beakerView.alpha = 1.0f;
+		self.greenBubbles.alpha = 1.0f;
+		self.yellowBubbles.alpha = 1.0f;
+		self.orangeBubbles.alpha = 1.0f;
+		
+		//self.hairView.transform = CGAffineTransformMakeScale(0.75f, 0.75f);
+		CGRect frame = self.hairView.frame;
+		frame.origin.y = 200.0f;
+		self.hairView.frame = frame;
+	} completion:^(BOOL finished) {
+		[self.gearLeft.layer removeAllAnimations];
+		[self.gearRight.layer removeAllAnimations];
+		[self.gearMiddle.layer removeAllAnimations];
+		
+		[self.leftBubbleTimer invalidate];
+		[self.rightBubbleTimer invalidate];
+		[self.smokeTimer invalidate];
+	}];
+	
+	[self initializeBeakerView];
+	[self initializeLoadingBubbles];
+	[self initializeLoadingBubbles];
 	
 	NSString *path = [NSString stringWithFormat:@"http://alchegnome.herokuapp.com/api/search?q=%@", self.searchField.text];
 	NSString *encodedPath = [path stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
@@ -140,16 +260,33 @@ NSInteger const SmokeFrames = 10;
 			tweet.favoriteCount = [dictionary objectForKey:@"favorite_count"];
 			tweet.location = [[dictionary objectForKey:@"user"] objectForKey:@"location"];
 			tweet.fullName = [[dictionary objectForKey:@"user"] objectForKey:@"name"];
+			tweet.handle = [[dictionary objectForKey:@"user"] objectForKey:@"screen_name"];
 			tweet.profileImageUrl = [[dictionary objectForKey:@"user"] objectForKey:@"profile_image_url"];
+			tweet.kloutScore = [dictionary objectForKey:@"klout_score"];
+			tweet.tweetLocation = [dictionary objectForKey:@"location"];
+			tweet.tweetTime = [self.formatter dateFromString:[dictionary objectForKey:@"created_at"]];
 			
 			[results addObject:tweet];
 		}
 		
 		self.resultsController = [[ResultsViewController alloc] initWithNibName:@"ResultsViewController" bundle:[NSBundle mainBundle]];
 		self.resultsController.results = results;
+		self.resultsController.delegate = self;
 		
+		self.resultsController.view.alpha = 0.0f;
 		[self.view addSubview:self.resultsController.view];
-		self.resultsVisible = YES;
+		
+		[UIView animateWithDuration:2.0f animations:^{
+			self.resultsController.view.alpha = 1.0f;
+			self.backgroundGradient.alpha = 0.0f;
+			self.beakerView.alpha = 0.0f;
+			self.greenBubbles.alpha = 0.0f;
+			self.yellowBubbles.alpha = 0.0f;
+			self.orangeBubbles.alpha = 0.0f;
+			self.hairView.alpha = 0.0f;
+		} completion:^(BOOL finished) {
+			self.resultsVisible = YES;
+		}];
 		
 	} failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON) {
 		NSLog(@"Error: %@", error);
@@ -185,6 +322,43 @@ NSInteger const SmokeFrames = 10;
 	NSString *newString = [textField.text stringByReplacingCharactersInRange:range withString:string];
 	self.searchButton.selected = newString.length > 0;
 	return YES;
+}
+
+- (void)closeResults {
+	self.searchField.text = @"";
+	self.searchButton.selected = NO;
+	
+	[self animateGearImageView:self.gearLeft duration:3.0f angle:-M_PI*2];
+	[self animateGearImageView:self.gearMiddle duration:2.0f angle:-M_PI*2];
+	[self animateGearImageView:self.gearRight duration:4.0f angle:M_PI*2];
+	
+	[self initializeBubbles];
+	[self initializeHairView];
+	[self initializeSmokeView];
+	
+	[UIView animateWithDuration:1.0f animations:^{
+		self.searchField.alpha = 1.0f;
+		self.searchButton.alpha = 1.0f;
+		self.bubblesLeft.alpha = 0.2f;
+		self.bubblesRight.alpha = 0.2f;
+		self.gearLeft.alpha = 1.0f;
+		self.gearMiddle.alpha = 1.0f;
+		self.gearRight.alpha = 1.0f;
+		self.machineImage.alpha = 1.0f;
+		self.filterButton.alpha = 1.0f;
+		self.smokeView.alpha = 0.2f;
+		self.hairView.alpha = 1.0f;
+		self.backgroundGradient.alpha = 1.0f;
+		
+		CGRect frame = self.hairView.frame;
+		frame.origin.y = 92.0f;
+		self.hairView.frame = frame;
+		
+		self.beakerView.alpha = 0.0f;
+		self.greenBubbles.alpha = 0.0f;
+		self.yellowBubbles.alpha = 0.0f;
+		self.orangeBubbles.alpha = 0.0f;
+	}];
 }
 
 @end

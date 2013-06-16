@@ -7,9 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "SearchViewController.h"
 
 @interface ResultsViewController : UIViewController
 
 @property (strong, nonatomic) NSArray *results;
+@property (weak, nonatomic) SearchViewController *delegate;
 
 @end

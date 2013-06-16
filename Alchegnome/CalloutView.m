@@ -13,7 +13,28 @@
 - (void)awakeFromNib {
 	[super awakeFromNib];
 	
-	self.tweetLabel.textColor = [self colorFromHex:@"3a3a3a"];
+	UIColor *textColor = [self colorFromHex:@"3a3a3a"];
+	
+	self.tweetLabel.textColor = textColor;
+	self.nameLabel.textColor = textColor;
+	self.twitterHandleLabel.textColor = textColor;
+	self.timeLabel.textColor = textColor;
+	self.locationLabel.textColor = textColor;
+	self.retweetsLabel.textColor = textColor;
+	self.favoritesLabel.textColor = textColor;
+	self.retweetsMarker.textColor = textColor;
+	self.favoritesMarker.textColor = textColor;
+	
+	self.tweetLabel.font = [UIFont fontWithName:@"Klinic Slab" size:self.tweetLabel.font.pointSize];
+	self.nameLabel.font = [UIFont fontWithName:@"Klinic Slab" size:self.nameLabel.font.pointSize];
+	self.twitterHandleLabel.font = [UIFont fontWithName:@"Klinic Slab" size:self.twitterHandleLabel.font.pointSize];
+	self.timeLabel.font = [UIFont fontWithName:@"Klinic Slab" size:self.timeLabel.font.pointSize];
+	self.locationLabel.font = [UIFont fontWithName:@"Klinic Slab" size:self.locationLabel.font.pointSize];
+	self.retweetsLabel.font = [UIFont fontWithName:@"Klinic Slab" size:self.retweetsLabel.font.pointSize];
+	self.favoritesLabel.font = [UIFont fontWithName:@"Klinic Slab" size:self.favoritesLabel.font.pointSize];
+	self.retweetsMarker.font = [UIFont fontWithName:@"Klinic Slab" size:self.retweetsMarker.font.pointSize];
+	self.favoritesMarker.font = [UIFont fontWithName:@"Klinic Slab" size:self.favoritesMarker.font.pointSize];
+	self.kloutLabel.font = [UIFont fontWithName:@"DIN-Bold" size:self.kloutLabel.font.pointSize];
 }
 
 - (UIColor *)colorFromHex:(NSString*)hexString {

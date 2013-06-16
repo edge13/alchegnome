@@ -7,6 +7,7 @@
 //
 
 #import <QuartzCore/QuartzCore.h>
+#import "AFNetworking.h"
 #import "ResultsViewController.h"
 #import "GradientView.h"
 #import "TweetResult.h"
@@ -19,7 +20,7 @@ NSInteger const NumFramesX = 16;
 NSInteger const NumFramesY = 20;
 
 NSInteger const OffsetX = 0;
-NSInteger const OffsetY = 0;
+NSInteger const OffsetY = 44;
 
 NSInteger const ExplosionWidth = 9;
 NSInteger const ExplosionHeight = 5;
@@ -39,6 +40,8 @@ NSInteger const RandomY = 300;
 @property (strong, nonatomic) UINib *gradientViewNib;
 @property (assign, nonatomic) NSInteger currentIndex;
 
+@property (strong, nonatomic) NSDateFormatter *formatter;
+
 @property (strong, nonatomic) CalloutView *calloutView;
 
 @end
@@ -47,6 +50,9 @@ NSInteger const RandomY = 300;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+	
+	self.formatter = [[NSDateFormatter alloc] init];
+	self.formatter.dateFormat = @"HH:mm a | d MMM yy";
 
 	[self sortResultsBySentimentScore];
 	
@@ -56,8 +62,6 @@ NSInteger const RandomY = 300;
 	[self initializeCallout];
 	
 	[self shuffleGradientViews];
-	
-	[NSTimer scheduledTimerWithTimeInterval:0.004f target:self selector:@selector(gradientAppearTimer:) userInfo:nil repeats:YES];
 }
 
 - (void)initializeGradientPalette {
@@ -86,8 +90,7 @@ NSInteger const RandomY = 300;
 - (void)initializeCallout {
 	UINib *nib = [UINib nibWithNibName:@"CalloutView" bundle:[NSBundle mainBundle]];
 	self.calloutView = [[nib instantiateWithOwner:nil options:nil] lastObject];
-	//self.calloutView.alpha = 0.0f;
-	
+	self.calloutView.hidden = YES;
 	[self.view addSubview:self.calloutView];
 }
 
@@ -111,15 +114,16 @@ NSInteger const RandomY = 300;
 	self.gradientViews = [[NSMutableArray alloc] init];
 	for (NSInteger y = 0; y < NumFramesY; y++) {
 		for (NSInteger x = 0; x < NumFramesX; x++) {
-			if (y * NumFramesX + x >= self.results.count)
+			NSInteger index = y * NumFramesX + x;
+			
+			if (index >= self.results.count)
 				break;
 			
 			GradientView *gradientView = [[self.gradientViewNib instantiateWithOwner:nil options:nil] lastObject];
-			gradientView.destinationX = x * FrameWidth - OffsetX;
-			gradientView.destinationY = y * FrameHeight - OffsetY;
-			//gradientView.transform = CGAffineTransformMakeScale(2, 2);
+			gradientView.destinationX = x * FrameWidth + OffsetX;
+			gradientView.destinationY = y * FrameHeight + OffsetY;
 			
-			TweetResult *result = [self.results objectAtIndex:y * NumFramesX + x];
+			TweetResult *result = [self.results objectAtIndex:index];
 			
 			NSInteger gradientIndex = 10;
 			if ([result.sentimentType isEqualToString:@"positive"]) {
@@ -134,11 +138,23 @@ NSInteger const RandomY = 300;
 			gradientView.overlayView.backgroundColor = [self colorFromHex:[self.gradientColors objectAtIndex:gradientIndex]];
 			
 			CGRect frame = gradientView.frame;
-			frame.origin.x = [self randomizeX:gradientView.destinationX];
-			frame.origin.y = [self randomizeY:gradientView.destinationY];
+			frame.origin.x = gradientView.destinationX;
+			frame.origin.y = gradientView.destinationY;
 			gradientView.frame = frame;
+			gradientView.alpha = 0.0f;
 			
 			[self.gradientViews addObject:gradientView];
+			[self.view addSubview:gradientView];
+			
+			[UIView animateWithDuration:0.02f delay:index * 0.0009f options:UIViewAnimationOptionCurveEaseInOut animations:^{
+				gradientView.alpha = 1.0f;
+			} completion:^(BOOL finished) {
+				NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:result.profileImageUrl]];
+				AFImageRequestOperation *operation = [AFImageRequestOperation imageRequestOperationWithRequest:request success:^(UIImage *image) {
+					gradientView.profilePicture.image = image;
+				}];
+				[operation start];
+			}];
 		}
 	}
 }
@@ -161,7 +177,6 @@ NSInteger const RandomY = 300;
 		frame.origin.y = gradientView.destinationY;
 		gradientView.frame = frame;
 		gradientView.alpha = 1.0f;
-		//gradientView.transform = CGAffineTransformMakeScale(1, 1);
 	} completion:^(BOOL finished) {
 		
 	}];
@@ -185,35 +200,54 @@ NSInteger const RandomY = 300;
 
 - (void)touchEvent:(NSSet *)touches {
 	CGPoint touchPoint = [touches.anyObject locationInView:self.view];
-	GradientView *gradientView = [self.gradientViews objectAtIndex:[self indexFromPoint:touchPoint]];
+	NSInteger index = [self indexFromPoint:touchPoint];
+	if (index > self.gradientViews.count)
+		return;
+	TweetResult *tweetResult = [self.results objectAtIndex:index];
+	
+	GradientView *gradientView = [self.gradientViews objectAtIndex:index];
 	
 	NSArray *explosionViews = [self collectNearbyViewsFromPoint:touchPoint];
 	
+	for (GradientView *gradientView in self.explodedViews) {
+		gradientView.profilePicture.hidden = NO;
+	}
 	
 	for (GradientView *gradientView in explosionViews) {
 		gradientView.profilePicture.hidden = YES;
-		//if (![self.explodedViews containsObject:gradientView])
-		//	[self explodeGradientView:gradientView];
 	}
 	
-	for (GradientView *gradientView in self.explodedViews) {
-		if (![explosionViews containsObject:gradientView]) {
-			gradientView.profilePicture.hidden = NO;
-		}
-	}
 	self.explodedViews = explosionViews;
 	
-	CGRect frame = self.calloutView.frame;
-	frame.origin.x = gradientView.destinationX - self.calloutView.frame.size.width / 2 + FrameWidth / 2;
-	frame.origin.y = gradientView.destinationY - self.calloutView.frame.size.height / 2 + FrameHeight / 2;
+	GradientView *firstExplodedView = [explosionViews objectAtIndex:0];
 	
-	NSLog(@"gradientview x = %d", gradientView.destinationX);
+	CGRect frame = self.calloutView.frame;
+	frame.origin.x = firstExplodedView.frame.origin.x;
+	frame.origin.y = firstExplodedView.frame.origin.y;
 	
 	self.calloutView.frame = frame;
-	
-	//[UIView animateWithDuration:1.0f animations:^{
-	//	self.calloutView.alpha = 1.0f;
-	//}];
+	self.calloutView.hidden = NO;
+	self.calloutView.tweetLabel.text = tweetResult.text;
+	self.calloutView.twitterHandleLabel.text = tweetResult.handle;
+	self.calloutView.nameLabel.text = tweetResult.fullName;
+	self.calloutView.profileImage.image = gradientView.profilePicture.image;
+	self.calloutView.mainDivider.backgroundColor = gradientView.overlayView.backgroundColor;
+	self.calloutView.smallDividerLeft.backgroundColor = gradientView.overlayView.backgroundColor;
+	self.calloutView.smallDividerRight.backgroundColor = gradientView.overlayView.backgroundColor;
+	self.calloutView.retweetsLabel.text = [tweetResult.retweetCount stringValue];
+	self.calloutView.favoritesLabel.text = [tweetResult.favoriteCount stringValue];
+	self.calloutView.locationLabel.text = tweetResult.tweetLocation;
+	self.calloutView.timeLabel.text = [self.formatter stringFromDate:tweetResult.tweetTime];
+
+	if (tweetResult.kloutScore) {
+		self.calloutView.kloutLabel.hidden = NO;
+		self.calloutView.kloutBackground.hidden = NO;
+		self.calloutView.kloutLabel.text = [NSString stringWithFormat:@"%d", tweetResult.kloutScore.integerValue];
+	}
+	else {
+		self.calloutView.kloutLabel.hidden = YES;
+		self.calloutView.kloutBackground.hidden = YES;
+	}
 	
 	[self.view bringSubviewToFront:self.calloutView];
 }
@@ -226,39 +260,32 @@ NSInteger const RandomY = 300;
 	[self touchEvent:touches];
 }
 
-- (void)explodeGradientView:(GradientView *)gradientView {
-	//[self.view bringSubviewToFront:gradientView];
-	[UIView animateWithDuration:0.8f delay:0.0f options:UIViewAnimationOptionCurveEaseOut animations:^{
-		CGRect frame = gradientView.frame;
-		frame.origin.x = [self randomizeX:gradientView.destinationX];
-		frame.origin.y = [self randomizeY:gradientView.destinationY];
-		gradientView.frame = frame;
-		gradientView.alpha = 0.4;
-	} completion:^(BOOL finished) {
-		
-	}];
-}
-
 - (NSArray *)collectNearbyViewsFromPoint:(CGPoint)point {
 	NSInteger yIndex = point.y / FrameHeight;
 	NSInteger xIndex = point.x / FrameWidth;
 	
 	NSMutableArray *views = [[NSMutableArray alloc] initWithCapacity:ExplosionWidth * ExplosionHeight];
 	
-	for (int x = xIndex - ExplosionWidth / 2; x <= xIndex + ExplosionWidth / 2; x++) {
-		for (int y = yIndex - ExplosionHeight / 2; y <= yIndex + ExplosionHeight / 2; y++) {
-			if (x >= 0 && x < NumFramesX && y >= 0 && y < NumFramesY) {
-				GradientView *gradientView = [self.gradientViews objectAtIndex:NumFramesX * y + x];
-				[views addObject:gradientView];
-			}
+	int startX = xIndex - ExplosionWidth / 2;
+	startX = MAX(0, startX);
+	startX = MIN(startX, NumFramesX - ExplosionWidth);
+	
+	int startY = yIndex - ExplosionHeight / 2;
+	startY = MAX(0, startY);
+	startY = MIN(startY, NumFramesY - ExplosionHeight);
+	
+	for (int x = startX; x < startX + ExplosionWidth; x++) {
+		for (int y = startY; y < startY + ExplosionHeight; y++) {
+			GradientView *gradientView = [self.gradientViews objectAtIndex:NumFramesX * y + x];
+			[views addObject:gradientView];
 		}
 	}
 	return views;
 }
 
 - (NSInteger)indexFromPoint:(CGPoint)point {
-	NSInteger yIndex = point.y / FrameHeight;
-	NSInteger xIndex = point.x / FrameWidth;
+	NSInteger yIndex = (point.y - OffsetY) / FrameHeight;
+	NSInteger xIndex = (point.x - OffsetX) / FrameWidth;
 	return NumFramesX * yIndex + xIndex;
 }
 
@@ -271,6 +298,18 @@ NSInteger const RandomY = 300;
 	[scanner scanHexInt:&hex];
 	
 	return [UIColor colorWithRed:((float)((hex & 0xFF0000) >> 16))/255.0 green:((float)((hex & 0xFF00) >> 8))/255.0 blue:((float)(hex & 0xFF))/255.0 alpha:1.0f];
+}
+
+- (IBAction)closeResults:(id)sender {
+	for (NSInteger index = 0; index < self.results.count; index++) {
+		GradientView *gradientView = [self.gradientViews objectAtIndex:index];
+		[UIView animateWithDuration:0.02f delay:index * 0.0009f options:UIViewAnimationOptionCurveEaseInOut animations:^{
+			gradientView.alpha = 0.0f;
+		} completion:^(BOOL finished) {
+			[self.view removeFromSuperview];
+		}];
+	}
+	[self.delegate closeResults];
 }
 
 @end

@@ -10,6 +10,7 @@
 #import "ResultsViewController.h"
 #import "GradientView.h"
 #import "TweetResult.h"
+#import "CalloutView.h"
 
 CGFloat const FrameWidth = 48.0f;
 CGFloat const FrameHeight = 48.0f;
@@ -17,16 +18,19 @@ CGFloat const FrameHeight = 48.0f;
 NSInteger const NumFramesX = 16;
 NSInteger const NumFramesY = 20;
 
-NSInteger const OffsetX = 24;
-NSInteger const OffsetY = 24;
+NSInteger const OffsetX = 0;
+NSInteger const OffsetY = 0;
 
-NSInteger const ExplosionWidth = 5;
+NSInteger const ExplosionWidth = 9;
 NSInteger const ExplosionHeight = 5;
 
 NSInteger const RandomX = 300;
 NSInteger const RandomY = 300;
 
 @interface ResultsViewController ()
+
+@property (strong, nonatomic) TweetResult *bestResult;
+@property (strong, nonatomic) TweetResult *worstResult;
 
 @property (strong, nonatomic) NSMutableArray *gradientViews;
 @property (strong, nonatomic) NSMutableArray *shuffledGradientViews;
@@ -35,18 +39,63 @@ NSInteger const RandomY = 300;
 @property (strong, nonatomic) UINib *gradientViewNib;
 @property (assign, nonatomic) NSInteger currentIndex;
 
+@property (strong, nonatomic) CalloutView *calloutView;
+
 @end
 
 @implementation ResultsViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-	
-	self.gradientColors = @[@"aaee23", @"bceb1b", @"c9e916", @"d3e811", @"dde60d", @"e0e60c", @"e7e509", @"f0e305", @"f4e303", @"f9e201", @"f8da01", @"f5cc01", @"f2bd01", @"efb001", @"eca201", @"e89201", @"e58301", @"e17301", @"de6701", @"db5501"];
 
+	[self sortResultsBySentimentScore];
 	
-	self.gradientViewNib = [UINib nibWithNibName:@"GradientView" bundle:[NSBundle mainBundle]];
+	[self initializeNibs];
+	[self initializeGradientPalette];
+	[self initializeGradientViews];
+	[self initializeCallout];
 	
+	[self shuffleGradientViews];
+	
+	[NSTimer scheduledTimerWithTimeInterval:0.004f target:self selector:@selector(gradientAppearTimer:) userInfo:nil repeats:YES];
+}
+
+- (void)initializeGradientPalette {
+	self.gradientColors = @[@"76EC23",
+							@"87ED23",
+							@"94ED23",
+							@"A1EE23",
+							@"AAEE23",
+							@"ABEE23",
+							@"B0ED21",
+							@"BCEB1C",
+							@"CFE813",
+							@"EBE407",
+							@"F9DF01",
+							@"F1BA01",
+							@"E99801",
+							@"E48001",
+							@"E07001",
+							@"DE6301",
+							@"DC5A01",
+							@"DB5601",
+							@"CE4D05",
+							@"C44708"];
+}
+
+- (void)initializeCallout {
+	UINib *nib = [UINib nibWithNibName:@"CalloutView" bundle:[NSBundle mainBundle]];
+	self.calloutView = [[nib instantiateWithOwner:nil options:nil] lastObject];
+	//self.calloutView.alpha = 0.0f;
+	
+	[self.view addSubview:self.calloutView];
+}
+
+- (void)initializeNibs {
+	self.gradientViewNib = [UINib nibWithNibName:@"GradientView" bundle:[NSBundle mainBundle]];	
+}
+
+- (void)sortResultsBySentimentScore {
 	self.results = [self.results sortedArrayUsingComparator:^NSComparisonResult(TweetResult *obj1, TweetResult *obj2) {
 		if (obj1.sentimentScore.floatValue > obj2.sentimentScore.floatValue)
 			return NSOrderedAscending;
@@ -54,20 +103,13 @@ NSInteger const RandomY = 300;
 			return NSOrderedDescending;
 	}];
 	
-	NSLog(@"max=%f", [[[self.results objectAtIndex:0] sentimentScore] floatValue]);
-	NSLog(@"min=%f", [[[self.results lastObject] sentimentScore] floatValue]);
-	
-	TweetResult *bestResult = [self.results objectAtIndex:0];
-	TweetResult *worstResult = [self.results lastObject];
-	
-	
-	
-	
+	self.bestResult = [self.results objectAtIndex:0];
+	self.worstResult = [self.results lastObject];
+}
+
+- (void)initializeGradientViews {
 	self.gradientViews = [[NSMutableArray alloc] init];
 	for (NSInteger y = 0; y < NumFramesY; y++) {
-		
-		CGFloat totalScore = 0;
-		
 		for (NSInteger x = 0; x < NumFramesX; x++) {
 			if (y * NumFramesX + x >= self.results.count)
 				break;
@@ -75,16 +117,21 @@ NSInteger const RandomY = 300;
 			GradientView *gradientView = [[self.gradientViewNib instantiateWithOwner:nil options:nil] lastObject];
 			gradientView.destinationX = x * FrameWidth - OffsetX;
 			gradientView.destinationY = y * FrameHeight - OffsetY;
+			//gradientView.transform = CGAffineTransformMakeScale(2, 2);
 			
 			TweetResult *result = [self.results objectAtIndex:y * NumFramesX + x];
 			
-			totalScore += result.sentimentScore.floatValue;
+			NSInteger gradientIndex = 10;
+			if ([result.sentimentType isEqualToString:@"positive"]) {
+				CGFloat ratio = result.sentimentScore.floatValue / self.bestResult.sentimentScore.floatValue;
+				gradientIndex -= 10 * ratio;
+			}
+			else if ([result.sentimentType isEqualToString:@"negative"]) {
+				CGFloat ratio = result.sentimentScore.floatValue / self.worstResult.sentimentScore.floatValue;
+				gradientIndex += 9 * ratio;
+			}
 			
-
-			
-			//NSLog(@"tweet score=%f, gradientIndex=%d", result.sentimentScore.floatValue, gradientIndex);
-			
-
+			gradientView.overlayView.backgroundColor = [self colorFromHex:[self.gradientColors objectAtIndex:gradientIndex]];
 			
 			CGRect frame = gradientView.frame;
 			frame.origin.x = [self randomizeX:gradientView.destinationX];
@@ -93,34 +140,10 @@ NSInteger const RandomY = 300;
 			
 			[self.gradientViews addObject:gradientView];
 		}
-		
-		CGFloat averageScore = totalScore / NumFramesX;
-		NSInteger gradientIndex = 10;
-		if (averageScore > 0) {
-			CGFloat ratio = averageScore / bestResult.sentimentScore.floatValue;
-			gradientIndex -= 10 * ratio;
-		}
-		else {
-			CGFloat ratio = averageScore / worstResult.sentimentScore.floatValue;
-			gradientIndex += 9 * ratio;
-		}
-		
-		for (NSInteger x = 0; x < NumFramesX; x++) {
-			if (y * NumFramesX + x >= self.results.count)
-				break;
-			
-			GradientView *gradientView = [self.gradientViews objectAtIndex:y * NumFramesX + x];
-			gradientView.overlayView.backgroundColor = [self colorFromHex:[self.gradientColors objectAtIndex:gradientIndex]];
-		}
 	}
-	
-	self.shuffledGradientViews = [NSMutableArray arrayWithArray:self.gradientViews];
-	[self shuffleArray:self.shuffledGradientViews];
-	
-	[NSTimer scheduledTimerWithTimeInterval:0.003f target:self selector:@selector(addGradient:) userInfo:nil repeats:YES];
 }
 
-- (void)addGradient:(NSTimer *)timer {
+- (void)gradientAppearTimer:(NSTimer *)timer {
 	if (self.currentIndex >= self.gradientViews.count) {
 		[timer invalidate];
 	}
@@ -132,33 +155,23 @@ NSInteger const RandomY = 300;
 }
 
 - (void)animateGradientViewIntoPosition:(GradientView *)gradientView {
-	[UIView animateWithDuration:0.3f delay:0.0f options:UIViewAnimationOptionCurveEaseIn animations:^{
+	[UIView animateWithDuration:0.4f delay:0.0f options:UIViewAnimationOptionCurveEaseIn animations:^{
 		CGRect frame = gradientView.frame;
 		frame.origin.x = gradientView.destinationX;
 		frame.origin.y = gradientView.destinationY;
 		gradientView.frame = frame;
 		gradientView.alpha = 1.0f;
+		//gradientView.transform = CGAffineTransformMakeScale(1, 1);
 	} completion:^(BOOL finished) {
 		
 	}];
-	
-	CABasicAnimation *anim = [CABasicAnimation animationWithKeyPath:@"transform"];
-	CATransform3D t = CATransform3DIdentity;
-	t = CATransform3DRotate(t, M_PI, 0, 1, 0);
-	t = CATransform3DScale(t, 0.5f, 0.5f, 1.0f);
-	[anim setFromValue:[NSValue valueWithCATransform3D:CATransform3DIdentity]];
-	[anim setToValue:[NSValue valueWithCATransform3D:t]];
-	anim.removedOnCompletion = NO;
-	[anim setDuration:0.3f];
-	anim.fillMode = kCAFillModeForwards;
-	anim.delegate = self;
-	[gradientView.layer addAnimation:anim forKey:@"Rotation"];
 }
 
-- (void)shuffleArray:(NSMutableArray *)array {
-	for (NSUInteger i = 0; i < array.count; ++i) {
-		NSInteger index = arc4random_uniform(array.count - i) + i;
-		[array exchangeObjectAtIndex:i withObjectAtIndex:index];
+- (void)shuffleGradientViews {
+	self.shuffledGradientViews = [NSMutableArray arrayWithArray:self.gradientViews];
+	for (NSUInteger i = 0; i < self.shuffledGradientViews.count; ++i) {
+		NSInteger index = arc4random_uniform(self.shuffledGradientViews.count - i) + i;
+		[self.shuffledGradientViews exchangeObjectAtIndex:i withObjectAtIndex:index];
 	}
 }
 
@@ -172,21 +185,37 @@ NSInteger const RandomY = 300;
 
 - (void)touchEvent:(NSSet *)touches {
 	CGPoint touchPoint = [touches.anyObject locationInView:self.view];
-	//GradientView *gradientView = [self.gradientViews objectAtIndex:[self indexFromPoint:touchPoint]];
+	GradientView *gradientView = [self.gradientViews objectAtIndex:[self indexFromPoint:touchPoint]];
 	
 	NSArray *explosionViews = [self collectNearbyViewsFromPoint:touchPoint];
 	
+	
 	for (GradientView *gradientView in explosionViews) {
-		if (![self.explodedViews containsObject:gradientView])
-			[self explodeGradientView:gradientView];
+		gradientView.profilePicture.hidden = YES;
+		//if (![self.explodedViews containsObject:gradientView])
+		//	[self explodeGradientView:gradientView];
 	}
 	
 	for (GradientView *gradientView in self.explodedViews) {
 		if (![explosionViews containsObject:gradientView]) {
-			[self animateGradientViewIntoPosition:gradientView];
+			gradientView.profilePicture.hidden = NO;
 		}
 	}
 	self.explodedViews = explosionViews;
+	
+	CGRect frame = self.calloutView.frame;
+	frame.origin.x = gradientView.destinationX - self.calloutView.frame.size.width / 2 + FrameWidth / 2;
+	frame.origin.y = gradientView.destinationY - self.calloutView.frame.size.height / 2 + FrameHeight / 2;
+	
+	NSLog(@"gradientview x = %d", gradientView.destinationX);
+	
+	self.calloutView.frame = frame;
+	
+	//[UIView animateWithDuration:1.0f animations:^{
+	//	self.calloutView.alpha = 1.0f;
+	//}];
+	
+	[self.view bringSubviewToFront:self.calloutView];
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -198,7 +227,7 @@ NSInteger const RandomY = 300;
 }
 
 - (void)explodeGradientView:(GradientView *)gradientView {
-	[self.view bringSubviewToFront:gradientView];
+	//[self.view bringSubviewToFront:gradientView];
 	[UIView animateWithDuration:0.8f delay:0.0f options:UIViewAnimationOptionCurveEaseOut animations:^{
 		CGRect frame = gradientView.frame;
 		frame.origin.x = [self randomizeX:gradientView.destinationX];
@@ -208,18 +237,6 @@ NSInteger const RandomY = 300;
 	} completion:^(BOOL finished) {
 		
 	}];
-	
-	CABasicAnimation *anim = [CABasicAnimation animationWithKeyPath:@"transform"];
-	CATransform3D t = CATransform3DIdentity;
-	t = CATransform3DRotate(t, M_PI, 0, 1, 0);
-	t = CATransform3DScale(t, 0.5f, 0.5f, 1.0f);
-	[anim setFromValue:[NSValue valueWithCATransform3D:CATransform3DIdentity]];
-	[anim setToValue:[NSValue valueWithCATransform3D:t]];
-	anim.removedOnCompletion = NO;
-	[anim setDuration:0.8f];
-	anim.fillMode = kCAFillModeForwards;
-	anim.delegate = self;
-	[gradientView.layer addAnimation:anim forKey:@"Rotation"];
 }
 
 - (NSArray *)collectNearbyViewsFromPoint:(CGPoint)point {

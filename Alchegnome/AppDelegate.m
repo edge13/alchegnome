@@ -14,11 +14,9 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 	SearchViewController *searchController = [[SearchViewController alloc] initWithNibName:@"SearchViewController" bundle:[NSBundle mainBundle]];
 	
-	UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:searchController];
-	
 	self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 	self.window.backgroundColor = [UIColor whiteColor];
-	self.window.rootViewController = navController;
+	self.window.rootViewController = searchController;
 	
     [self.window makeKeyAndVisible];
     return YES;

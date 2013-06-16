@@ -8,7 +8,20 @@
 
 #import <UIKit/UIKit.h>
 
-@interface SearchViewController : UIViewController
+@interface SearchViewController : UIViewController<UITextFieldDelegate>
+
+@property (weak, nonatomic) IBOutlet UIImageView *gearLeft;
+@property (weak, nonatomic) IBOutlet UIImageView *gearMiddle;
+@property (weak, nonatomic) IBOutlet UIImageView *gearRight;
+
+@property (weak, nonatomic) IBOutlet UITextField *searchField;
+
+@property (weak, nonatomic) IBOutlet UIImageView *hairView;
+@property (weak, nonatomic) IBOutlet UIImageView *bubblesLeft;
+@property (weak, nonatomic) IBOutlet UIImageView *bubblesRight;
+@property (weak, nonatomic) IBOutlet UIImageView *smokeView;
+
+@property (weak, nonatomic) IBOutlet UIButton *searchButton;
 
 - (IBAction)search:(id)sender;
 

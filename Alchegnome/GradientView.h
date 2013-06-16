@@ -14,5 +14,6 @@
 @property (assign, nonatomic) NSInteger destinationY;
 
 @property (weak, nonatomic) IBOutlet UIView *overlayView;
+@property (weak, nonatomic) IBOutlet UIImageView *profilePicture;
 
 @end

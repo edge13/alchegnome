@@ -11,7 +11,13 @@
 @interface TweetResult : NSObject
 
 @property (strong, nonatomic) NSString *text;
+@property (strong, nonatomic) NSString *handle;
+@property (strong, nonatomic) NSString *fullName;
+@property (strong, nonatomic) NSString *retweetCount;
+@property (strong, nonatomic) NSString *favoriteCount;
+@property (strong, nonatomic) NSString *location;
 @property (strong, nonatomic) NSString *sentimentType;
 @property (strong, nonatomic) NSNumber *sentimentScore;
+@property (strong, nonatomic) NSString *profileImageUrl;
 
 @end

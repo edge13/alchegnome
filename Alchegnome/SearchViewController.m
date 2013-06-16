@@ -11,6 +11,7 @@
 #import "ResultsViewController.h"
 #import "TweetResult.h"
 #import "AFNetworking.h"
+#import "FilterView.h"
 
 NSInteger const BubbleFrames = 9;
 NSInteger const HairFrames = 10;
@@ -43,6 +44,8 @@ NSInteger const BeakerFrames = 6;
 
 @property (strong, nonatomic) NSDateFormatter *formatter;
 
+@property (strong, nonatomic) FilterView *filterView;
+
 @end
 
 @implementation SearchViewController
@@ -62,8 +65,24 @@ NSInteger const BeakerFrames = 6;
 	[self initializeBubbles];
 	[self initializeHairView];
 	[self initializeSmokeView];
+	[self initializeFilterView];
 	
 	[[UIApplication sharedApplication] setStatusBarOrientation:UIInterfaceOrientationPortrait];
+	
+	NSLog(@"%@", [UIFont familyNames]);
+}
+
+- (void)initializeFilterView {
+	UINib *nib = [UINib nibWithNibName:@"FilterView" bundle:[NSBundle mainBundle]];
+	self.filterView = [[nib instantiateWithOwner:nil options:nil] lastObject];
+	
+	CGRect frame = self.filterView.frame;
+	frame.origin.x = -frame.size.width;
+	frame.origin.y = 476.0f;
+	
+	self.filterView.frame = frame;
+	self.filterView.delegate = self;
+	[self.view addSubview:self.filterView];
 }
 
 - (void)initializeSmokeView {
@@ -83,6 +102,10 @@ NSInteger const BeakerFrames = 6;
 }
 
 - (void)initializeLoadingBubbles {
+	[self.greenBubblesTimer invalidate];
+	[self.orangeBubblesTimer invalidate];
+	[self.yellowBubblesTimer invalidate];
+	
 	self.greenBubblesFrame = 1;
 	self.greenBubblesTimer = [NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateGreenBubbles:) userInfo:nil repeats:YES];
 	
@@ -91,7 +114,7 @@ NSInteger const BeakerFrames = 6;
 		self.yellowBubblesTimer = [NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateYellowBubbles:) userInfo:nil repeats:YES];
 	});
 	
-	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.0f * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.1f * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
 		self.orangeBubblesFrame = 1;
 		self.orangeBubblesTimer = [NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateOrangeBubbles:) userInfo:nil repeats:YES];
 	});
@@ -103,6 +126,8 @@ NSInteger const BeakerFrames = 6;
 }
 
 - (void)initializeBeakerView {
+	[self.beakerTimer invalidate];
+	
 	self.beakerFrame = 1;
 	self.beakerTimer = [NSTimer scheduledTimerWithTimeInterval:0.18f target:self selector:@selector(updateBeaker:) userInfo:nil repeats:YES];
 }
@@ -149,7 +174,8 @@ NSInteger const BeakerFrames = 6;
 		[timer invalidate];
 		CGFloat randomDelay = 1.0f + arc4random_uniform(10) / 15.0f;
 		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, randomDelay * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-			self.greenBubblesTimer = [NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateGreenBubbles:) userInfo:nil repeats:YES];
+			if (!self.resultsVisible)
+				self.greenBubblesTimer = [NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateGreenBubbles:) userInfo:nil repeats:YES];
 		});
 	}
 }
@@ -162,12 +188,14 @@ NSInteger const BeakerFrames = 6;
 		[timer invalidate];
 		CGFloat randomDelay = 1.0f + arc4random_uniform(10) / 15.0f;
 		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, randomDelay * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-			self.yellowBubblesTimer = [NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateYellowBubbles:) userInfo:nil repeats:YES];
+			if (!self.resultsVisible)
+				self.yellowBubblesTimer = [NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateYellowBubbles:) userInfo:nil repeats:YES];
 		});
 	}
 }
 
 - (void)updateOrangeBubbles:(NSTimer *)timer {
+	
 	self.orangeBubbles.image = [UIImage imageNamed:[NSString stringWithFormat:@"orange_animation_%d", self.orangeBubblesFrame]];
 	self.orangeBubblesFrame++;
 	if (self.orangeBubblesFrame > BubbleFrames) {
@@ -175,7 +203,8 @@ NSInteger const BeakerFrames = 6;
 		[timer invalidate];
 		CGFloat randomDelay = 1.0f + arc4random_uniform(10) / 15.0f;
 		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, randomDelay * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-			self.orangeBubblesTimer = [NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateOrangeBubbles:) userInfo:nil repeats:YES];
+			if (!self.resultsVisible)
+				self.orangeBubblesTimer = [NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateOrangeBubbles:) userInfo:nil repeats:YES];
 		});
 	}
 }
@@ -223,7 +252,6 @@ NSInteger const BeakerFrames = 6;
 		self.yellowBubbles.alpha = 1.0f;
 		self.orangeBubbles.alpha = 1.0f;
 		
-		//self.hairView.transform = CGAffineTransformMakeScale(0.75f, 0.75f);
 		CGRect frame = self.hairView.frame;
 		frame.origin.y = 200.0f;
 		self.hairView.frame = frame;
@@ -248,6 +276,8 @@ NSInteger const BeakerFrames = 6;
 	
 	NSLog(@"invoking: %@", encodedPath);
 	
+	NSDate *startTime = [NSDate date];
+	
 	AFJSONRequestOperation *operation = [AFJSONRequestOperation JSONRequestOperationWithRequest:request success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
 		NSMutableArray *results = [[NSMutableArray alloc] init];
 		NSLog(@"operation complete");
@@ -269,30 +299,65 @@ NSInteger const BeakerFrames = 6;
 			[results addObject:tweet];
 		}
 		
-		self.resultsController = [[ResultsViewController alloc] initWithNibName:@"ResultsViewController" bundle:[NSBundle mainBundle]];
-		self.resultsController.results = results;
-		self.resultsController.delegate = self;
+		NSTimeInterval timeInterval = [startTime timeIntervalSinceNow];
+		NSInteger wait = MAX(4 - timeInterval, 0);
 		
-		self.resultsController.view.alpha = 0.0f;
-		[self.view addSubview:self.resultsController.view];
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, wait * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+			self.resultsController = [[ResultsViewController alloc] initWithNibName:@"ResultsViewController" bundle:[NSBundle mainBundle]];
+			self.resultsController.results = results;
+			self.resultsController.delegate = self;
+			
+			self.resultsController.view.alpha = 0.0f;
+			[self.view addSubview:self.resultsController.view];
+			
+			[UIView animateWithDuration:2.0f animations:^{
+				self.resultsController.view.alpha = 1.0f;
+				self.backgroundGradient.alpha = 0.0f;
+				self.beakerView.alpha = 0.0f;
+				self.greenBubbles.alpha = 0.0f;
+				self.yellowBubbles.alpha = 0.0f;
+				self.orangeBubbles.alpha = 0.0f;
+				self.hairView.alpha = 0.0f;
+			} completion:^(BOOL finished) {
+				self.resultsVisible = YES;
+				[self.beakerTimer invalidate];
+				[self.yellowBubblesTimer invalidate];
+				[self.greenBubblesTimer invalidate];
+				[self.orangeBubblesTimer invalidate];
+				[self.hairTimer invalidate];
+				
+				self.hairFrame = 1;
+				self.yellowBubblesFrame = 1;
+				self.greenBubblesFrame = 1;
+				self.orangeBubblesFrame = 1;
+				self.beakerFrame = 1;
+			}];
+		});
 		
-		[UIView animateWithDuration:2.0f animations:^{
-			self.resultsController.view.alpha = 1.0f;
-			self.backgroundGradient.alpha = 0.0f;
-			self.beakerView.alpha = 0.0f;
-			self.greenBubbles.alpha = 0.0f;
-			self.yellowBubbles.alpha = 0.0f;
-			self.orangeBubbles.alpha = 0.0f;
-			self.hairView.alpha = 0.0f;
-		} completion:^(BOOL finished) {
-			self.resultsVisible = YES;
-		}];
+
 		
 	} failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON) {
 		NSLog(@"Error: %@", error);
+		[self closeResults];
 	}];
 	
 	[operation start];
+}
+
+- (void)filter:(id)sender {
+	[UIView animateWithDuration:0.8f animations:^{
+		CGRect frame = self.filterView.frame;
+		frame.origin.x = 0;
+		self.filterView.frame = frame;
+	}];
+}
+
+- (void)closeFilter {
+	[UIView animateWithDuration:0.8f animations:^{
+		CGRect frame = self.filterView.frame;
+		frame.origin.x = -frame.size.width;
+		self.filterView.frame = frame;
+	}];
 }
 
 - (BOOL)shouldAutorotate {
@@ -302,8 +367,13 @@ NSInteger const BeakerFrames = 6;
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
 	if (self.resultsVisible)
 		[self.resultsController touchesBegan:touches withEvent:event];
-	else
-		[super touchesBegan:touches withEvent:event];
+	else {
+		CGPoint touchPoint = [touches.anyObject locationInView:self.view];
+		if (self.filterView.frame.origin.x == 0 && !CGRectContainsPoint(self.filterView.frame, touchPoint))
+			[self closeFilter];
+		else
+			[super touchesBegan:touches withEvent:event];
+	}
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -359,6 +429,8 @@ NSInteger const BeakerFrames = 6;
 		self.yellowBubbles.alpha = 0.0f;
 		self.orangeBubbles.alpha = 0.0f;
 	}];
+	
+	self.resultsVisible = NO;
 }
 
 @end

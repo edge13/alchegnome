@@ -34,7 +34,9 @@
 @property (weak, nonatomic) IBOutlet UIImageView *orangeBubbles;
 
 - (IBAction)search:(id)sender;
+- (IBAction)filter:(id)sender;
 
 - (void)closeResults;
+- (void)closeFilter;
 
 @end

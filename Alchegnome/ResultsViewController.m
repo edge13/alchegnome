@@ -12,6 +12,7 @@
 #import "GradientView.h"
 #import "TweetResult.h"
 #import "CalloutView.h"
+#import "SummaryView.h"
 
 CGFloat const FrameWidth = 48.0f;
 CGFloat const FrameHeight = 48.0f;
@@ -43,6 +44,7 @@ NSInteger const RandomY = 300;
 @property (strong, nonatomic) NSDateFormatter *formatter;
 
 @property (strong, nonatomic) CalloutView *calloutView;
+@property (strong, nonatomic) SummaryView *summaryView;
 
 @end
 
@@ -57,6 +59,7 @@ NSInteger const RandomY = 300;
 	[self sortResultsBySentimentScore];
 	
 	[self initializeNibs];
+	[self initializeSummaryView];
 	[self initializeGradientPalette];
 	[self initializeGradientViews];
 	[self initializeCallout];
@@ -92,6 +95,44 @@ NSInteger const RandomY = 300;
 	self.calloutView = [[nib instantiateWithOwner:nil options:nil] lastObject];
 	self.calloutView.hidden = YES;
 	[self.view addSubview:self.calloutView];
+}
+
+- (void)initializeSummaryView {
+	UINib *nib = [UINib nibWithNibName:@"SummaryView" bundle:[NSBundle mainBundle]];
+	self.summaryView = [[nib instantiateWithOwner:nil options:nil] lastObject];
+	
+	NSInteger positive = 0;
+	NSInteger negative = 0;
+	for (TweetResult *result in self.results) {
+		if ([result.sentimentType isEqualToString:@"positive"])
+			positive++;
+		else if ([result.sentimentType isEqualToString:@"negative"])
+			negative++;
+	}
+	
+	CGFloat percentPositive = (CGFloat)positive / (CGFloat)(positive + negative);
+	NSInteger roundedPositive = (NSInteger)(percentPositive * 100);
+	NSInteger roundedNegative = 100 - roundedPositive;
+	
+	if (roundedPositive < 50) {
+		self.summaryView.emotionImage.image = [UIImage imageNamed:@"grumpy"];
+		self.summaryView.phraseLabel.text = @"Lame. Must be down in the dumps.";
+		self.summaryView.phraseLabel.textColor = [self colorFromHex:@"D95402"];
+		self.summaryView.statsLabel.text = [NSString stringWithFormat:@"%d%% Negative | %d%% Positive", roundedNegative, roundedPositive];
+	}
+	else {
+		self.summaryView.emotionImage.image = [UIImage imageNamed:@"happy"];
+		self.summaryView.phraseLabel.text = @"Wahoo, someone's chipper as shit!";
+		self.summaryView.phraseLabel.textColor = [self colorFromHex:@"99bc1c"];
+		self.summaryView.statsLabel.text = [NSString stringWithFormat:@"%d%% Positive | %d%% Negative", roundedPositive, roundedNegative];
+	}
+	
+	CGRect frame = self.summaryView.frame;
+	frame.origin.x = self.view.frame.size.width;
+	frame.origin.y = (NumFramesY / 2) * FrameHeight + OffsetY;
+	self.summaryView.frame = frame;
+	
+	[self.view addSubview:self.summaryView];
 }
 
 - (void)initializeNibs {
@@ -157,29 +198,16 @@ NSInteger const RandomY = 300;
 			}];
 		}
 	}
-}
-
-- (void)gradientAppearTimer:(NSTimer *)timer {
-	if (self.currentIndex >= self.gradientViews.count) {
-		[timer invalidate];
-	}
-	else {
-		GradientView *gradientView = [self.shuffledGradientViews objectAtIndex:self.currentIndex++];
-		[self.view addSubview:gradientView];
-		[self animateGradientViewIntoPosition:gradientView];
-	}
-}
-
-- (void)animateGradientViewIntoPosition:(GradientView *)gradientView {
-	[UIView animateWithDuration:0.4f delay:0.0f options:UIViewAnimationOptionCurveEaseIn animations:^{
-		CGRect frame = gradientView.frame;
-		frame.origin.x = gradientView.destinationX;
-		frame.origin.y = gradientView.destinationY;
-		gradientView.frame = frame;
-		gradientView.alpha = 1.0f;
-	} completion:^(BOOL finished) {
-		
-	}];
+	
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.0f * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+		[self.view bringSubviewToFront:self.summaryView];
+		[UIView animateWithDuration:1.0f delay:0.0f options:UIViewAnimationOptionCurveEaseIn animations:^{
+			CGRect frame = self.summaryView.frame;
+			frame.origin.x = self.view.frame.size.width - frame.size.width;
+			self.summaryView.frame = frame;
+		} completion:^(BOOL finished) {
+		}];
+	});
 }
 
 - (void)shuffleGradientViews {
@@ -199,6 +227,15 @@ NSInteger const RandomY = 300;
 }
 
 - (void)touchEvent:(NSSet *)touches {
+	if (self.summaryView.frame.origin.x == self.view.frame.size.width - self.summaryView.frame.size.width) {
+		[UIView animateWithDuration:1.0f delay:0.0f options:UIViewAnimationOptionCurveEaseOut animations:^{
+			CGRect frame = self.summaryView.frame;
+			frame.origin.x = self.view.frame.size.width;
+			self.summaryView.frame = frame;
+		} completion:^(BOOL finished) {
+			
+		}];
+	}
 	CGPoint touchPoint = [touches.anyObject locationInView:self.view];
 	NSInteger index = [self indexFromPoint:touchPoint];
 	if (index > self.gradientViews.count)
@@ -228,7 +265,7 @@ NSInteger const RandomY = 300;
 	self.calloutView.frame = frame;
 	self.calloutView.hidden = NO;
 	self.calloutView.tweetLabel.text = tweetResult.text;
-	self.calloutView.twitterHandleLabel.text = tweetResult.handle;
+	self.calloutView.twitterHandleLabel.text = [NSString stringWithFormat:@"@%@", tweetResult.handle];
 	self.calloutView.nameLabel.text = tweetResult.fullName;
 	self.calloutView.profileImage.image = gradientView.profilePicture.image;
 	self.calloutView.mainDivider.backgroundColor = gradientView.overlayView.backgroundColor;

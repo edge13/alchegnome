@@ -189,11 +189,11 @@
 						<nil key="IBUIHighlightedColor"/>
 						<int key="IBUIBaselineAdjustment">0</int>
 						<int key="IBUITextAlignment">1</int>
-						<object class="IBUIFontDescription" key="IBUIFontDescription" id="119019233">
+						<object class="IBUIFontDescription" key="IBUIFontDescription" id="394138432">
 							<int key="type">1</int>
 							<double key="pointSize">15</double>
 						</object>
-						<object class="NSFont" key="IBUIFont" id="635188225">
+						<object class="NSFont" key="IBUIFont" id="946146274">
 							<string key="NSName">Helvetica</string>
 							<double key="NSSize">15</double>
 							<int key="NSfFlags">16</int>
@@ -216,8 +216,8 @@
 						<nil key="IBUIHighlightedColor"/>
 						<int key="IBUIBaselineAdjustment">0</int>
 						<int key="IBUITextAlignment">1</int>
-						<reference key="IBUIFontDescription" ref="119019233"/>
-						<reference key="IBUIFont" ref="635188225"/>
+						<reference key="IBUIFontDescription" ref="394138432"/>
+						<reference key="IBUIFont" ref="946146274"/>
 						<bool key="IBUIAdjustsFontSizeToFit">NO</bool>
 					</object>
 					<object class="IBUILabel" id="683773339">
@@ -303,7 +303,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{190, 25}, {32, 29}}</string>
 						<reference key="NSSuperview" ref="191373211"/>
-						<reference key="NSNextKeyView" ref="1045265614"/>
+						<reference key="NSNextKeyView" ref="586615387"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<bool key="IBUIUserInteractionEnabled">NO</bool>
 						<string key="targetRuntimeIdentifier">IBIPadFramework</string>
@@ -312,7 +312,7 @@
 							<string key="NSResourceName">KloutFlag@2x.png</string>
 						</object>
 					</object>
-					<object class="IBUILabel" id="1045265614">
+					<object class="IBUILabel" id="586615387">
 						<reference key="NSNextResponder" ref="191373211"/>
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{191, 27}, {31, 21}}</string>
@@ -479,7 +479,7 @@
 					<object class="IBCocoaTouchOutletConnection" key="connection">
 						<string key="label">kloutLabel</string>
 						<reference key="source" ref="191373211"/>
-						<reference key="destination" ref="1045265614"/>
+						<reference key="destination" ref="586615387"/>
 					</object>
 					<int key="connectionID">35</int>
 				</object>
@@ -509,7 +509,7 @@
 							<reference ref="376669986"/>
 							<reference ref="631851737"/>
 							<reference ref="339375371"/>
-							<reference ref="1045265614"/>
+							<reference ref="586615387"/>
 							<reference ref="730625496"/>
 							<reference ref="414099889"/>
 						</array>
@@ -603,7 +603,7 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">31</int>
-						<reference key="object" ref="1045265614"/>
+						<reference key="object" ref="586615387"/>
 						<reference key="parent" ref="191373211"/>
 					</object>
 				</array>

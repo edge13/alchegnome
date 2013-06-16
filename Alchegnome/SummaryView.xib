@@ -36,7 +36,7 @@
 				<reference key="NSNextResponder"/>
 				<int key="NSvFlags">274</int>
 				<array class="NSMutableArray" key="NSSubviews">
-					<object class="IBUIImageView" id="106885796">
+					<object class="IBUIImageView" id="68136175">
 						<reference key="NSNextResponder" ref="191373211"/>
 						<int key="NSvFlags">274</int>
 						<string key="NSFrame">{{346, 15}, {182, 161}}</string>
@@ -50,13 +50,13 @@
 							<string key="NSResourceName">happy@2x.png</string>
 						</object>
 					</object>
-					<object class="IBUILabel" id="261231072">
+					<object class="IBUILabel" id="788277580">
 						<reference key="NSNextResponder" ref="191373211"/>
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{20, 67}, {318, 58}}</string>
 						<reference key="NSSuperview" ref="191373211"/>
 						<reference key="NSWindow"/>
-						<reference key="NSNextKeyView" ref="1030043000"/>
+						<reference key="NSNextKeyView" ref="507694826"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
@@ -64,7 +64,7 @@
 						<bool key="IBUIUserInteractionEnabled">NO</bool>
 						<string key="targetRuntimeIdentifier">IBIPadFramework</string>
 						<string key="IBUIText">Label</string>
-						<object class="NSColor" key="IBUITextColor" id="587425174">
+						<object class="NSColor" key="IBUITextColor" id="853832012">
 							<int key="NSColorSpace">1</int>
 							<bytes key="NSRGB">MCAwIDAAA</bytes>
 							<string key="IBUIColorCocoaTouchKeyPath">darkTextColor</string>
@@ -83,13 +83,13 @@
 						</object>
 						<bool key="IBUIAdjustsFontSizeToFit">NO</bool>
 					</object>
-					<object class="IBUILabel" id="1030043000">
+					<object class="IBUILabel" id="507694826">
 						<reference key="NSNextResponder" ref="191373211"/>
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{20, 95}, {318, 58}}</string>
 						<reference key="NSSuperview" ref="191373211"/>
 						<reference key="NSWindow"/>
-						<reference key="NSNextKeyView" ref="106885796"/>
+						<reference key="NSNextKeyView" ref="68136175"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
@@ -97,7 +97,7 @@
 						<bool key="IBUIUserInteractionEnabled">NO</bool>
 						<string key="targetRuntimeIdentifier">IBIPadFramework</string>
 						<string key="IBUIText">Label</string>
-						<reference key="IBUITextColor" ref="587425174"/>
+						<reference key="IBUITextColor" ref="853832012"/>
 						<nil key="IBUIHighlightedColor"/>
 						<int key="IBUIBaselineAdjustment">0</int>
 						<int key="IBUITextAlignment">2</int>
@@ -116,10 +116,10 @@
 				<string key="NSFrameSize">{528, 192}</string>
 				<reference key="NSSuperview"/>
 				<reference key="NSWindow"/>
-				<reference key="NSNextKeyView" ref="261231072"/>
+				<reference key="NSNextKeyView" ref="788277580"/>
 				<object class="NSColor" key="IBUIBackgroundColor">
 					<int key="NSColorSpace">3</int>
-					<bytes key="NSWhite">MSAwLjYAA</bytes>
+					<bytes key="NSWhite">MSAwLjgAA</bytes>
 					<object class="NSColorSpace" key="NSCustomColorSpace">
 						<int key="NSID">2</int>
 					</object>
@@ -137,7 +137,7 @@
 					<object class="IBCocoaTouchOutletConnection" key="connection">
 						<string key="label">emotionImage</string>
 						<reference key="source" ref="191373211"/>
-						<reference key="destination" ref="106885796"/>
+						<reference key="destination" ref="68136175"/>
 					</object>
 					<int key="connectionID">18</int>
 				</object>
@@ -145,7 +145,7 @@
 					<object class="IBCocoaTouchOutletConnection" key="connection">
 						<string key="label">phraseLabel</string>
 						<reference key="source" ref="191373211"/>
-						<reference key="destination" ref="261231072"/>
+						<reference key="destination" ref="788277580"/>
 					</object>
 					<int key="connectionID">19</int>
 				</object>
@@ -153,7 +153,7 @@
 					<object class="IBCocoaTouchOutletConnection" key="connection">
 						<string key="label">statsLabel</string>
 						<reference key="source" ref="191373211"/>
-						<reference key="destination" ref="1030043000"/>
+						<reference key="destination" ref="507694826"/>
 					</object>
 					<int key="connectionID">20</int>
 				</object>
@@ -170,9 +170,9 @@
 						<int key="objectID">1</int>
 						<reference key="object" ref="191373211"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="106885796"/>
-							<reference ref="1030043000"/>
-							<reference ref="261231072"/>
+							<reference ref="68136175"/>
+							<reference ref="507694826"/>
+							<reference ref="788277580"/>
 						</array>
 						<reference key="parent" ref="0"/>
 					</object>
@@ -189,18 +189,18 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">3</int>
-						<reference key="object" ref="106885796"/>
+						<reference key="object" ref="68136175"/>
 						<array class="NSMutableArray" key="children"/>
 						<reference key="parent" ref="191373211"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">14</int>
-						<reference key="object" ref="261231072"/>
+						<reference key="object" ref="788277580"/>
 						<reference key="parent" ref="191373211"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">17</int>
-						<reference key="object" ref="1030043000"/>
+						<reference key="object" ref="507694826"/>
 						<reference key="parent" ref="191373211"/>
 					</object>
 				</array>

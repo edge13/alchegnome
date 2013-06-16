@@ -14,4 +14,6 @@
 @property (strong, nonatomic) NSArray *results;
 @property (weak, nonatomic) SearchViewController *delegate;
 
+- (IBAction)flip:(id)sender;
+
 @end

@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "GradientView.h"
 
 @interface TweetResult : NSObject
 
@@ -24,5 +25,9 @@
 @property (strong, nonatomic) NSNumber *favoriteCount;
 
 @property (strong, nonatomic) NSDate *tweetTime;
+
+@property (assign, nonatomic) NSInteger modifiedKlout;
+
+@property (weak, nonatomic) GradientView *gradientView;
 
 @end

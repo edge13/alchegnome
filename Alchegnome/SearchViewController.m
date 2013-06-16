@@ -54,7 +54,7 @@ NSInteger const BeakerFrames = 6;
     [super viewDidLoad];
 	self.navigationController.navigationBarHidden = YES;
 	
-	self.searchField.font = [UIFont fontWithName:@"Klinic Slab" size:30.0f];
+	self.searchField.font = [UIFont fontWithName:@"Klinic Slab 2" size:30.0f];
 	self.formatter = [[NSDateFormatter alloc] init];
 	self.formatter.dateFormat = @"EEE MMM d HH:mm:ss ZZZ yyyy";
 	
@@ -121,6 +121,7 @@ NSInteger const BeakerFrames = 6;
 }
 
 - (void)initializeHairView {
+	[self.hairTimer invalidate];
 	self.hairFrame = 1;
 	self.hairTimer = [NSTimer scheduledTimerWithTimeInterval:0.12f target:self selector:@selector(updateHair:) userInfo:nil repeats:YES];
 }

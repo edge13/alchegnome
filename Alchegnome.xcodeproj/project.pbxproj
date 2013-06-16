@@ -39,11 +39,11 @@
 		5D388D8E176DA3AD00FB6536 /* happy@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 5D388D8C176DA3AD00FB6536 /* happy@2x.png */; };
 		5D388D90176DA3BC00FB6536 /* SummaryView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5D388D8F176DA3BC00FB6536 /* SummaryView.xib */; };
 		5D388D93176DA4FA00FB6536 /* SummaryView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5D388D92176DA4F900FB6536 /* SummaryView.m */; };
+		5D388D95176E064F00FB6536 /* KlinicSlab2.otf in Resources */ = {isa = PBXBuildFile; fileRef = 5D388D94176E064F00FB6536 /* KlinicSlab2.otf */; };
 		5D38DA22176CD48800B793BD /* ResultsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5D38DA21176CD48800B793BD /* ResultsViewController.xib */; };
 		5D38DA25176D011A00B793BD /* TweetResult.m in Sources */ = {isa = PBXBuildFile; fileRef = 5D38DA24176D011A00B793BD /* TweetResult.m */; };
 		5D38DA30176D21C700B793BD /* search_bg@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 5D38DA2F176D21C700B793BD /* search_bg@2x.png */; };
 		5D38DA34176D220000B793BD /* SearchViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5D38DA33176D220000B793BD /* SearchViewController.xib */; };
-		5D38DA37176D283000B793BD /* KlinicSlabBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 5D38DA35176D283000B793BD /* KlinicSlabBold.otf */; };
 		5D38DA38176D283000B793BD /* KlinicSlabBook.otf in Resources */ = {isa = PBXBuildFile; fileRef = 5D38DA36176D283000B793BD /* KlinicSlabBook.otf */; };
 		5D38DA57176D2E5A00B793BD /* hair_animation_1@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 5D38DA4D176D2E5A00B793BD /* hair_animation_1@2x.png */; };
 		5D38DA58176D2E5A00B793BD /* hair_animation_2@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 5D38DA4E176D2E5A00B793BD /* hair_animation_2@2x.png */; };
@@ -165,12 +165,12 @@
 		5D388D8F176DA3BC00FB6536 /* SummaryView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SummaryView.xib; sourceTree = "<group>"; };
 		5D388D91176DA4F900FB6536 /* SummaryView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SummaryView.h; sourceTree = "<group>"; };
 		5D388D92176DA4F900FB6536 /* SummaryView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SummaryView.m; sourceTree = "<group>"; };
+		5D388D94176E064F00FB6536 /* KlinicSlab2.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = KlinicSlab2.otf; sourceTree = "<group>"; };
 		5D38DA21176CD48800B793BD /* ResultsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ResultsViewController.xib; sourceTree = "<group>"; };
 		5D38DA23176D011900B793BD /* TweetResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TweetResult.h; sourceTree = "<group>"; };
 		5D38DA24176D011A00B793BD /* TweetResult.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TweetResult.m; sourceTree = "<group>"; };
 		5D38DA2F176D21C700B793BD /* search_bg@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "search_bg@2x.png"; sourceTree = "<group>"; };
 		5D38DA33176D220000B793BD /* SearchViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SearchViewController.xib; sourceTree = "<group>"; };
-		5D38DA35176D283000B793BD /* KlinicSlabBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = KlinicSlabBold.otf; sourceTree = "<group>"; };
 		5D38DA36176D283000B793BD /* KlinicSlabBook.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = KlinicSlabBook.otf; sourceTree = "<group>"; };
 		5D38DA4D176D2E5A00B793BD /* hair_animation_1@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "hair_animation_1@2x.png"; sourceTree = "<group>"; };
 		5D38DA4E176D2E5A00B793BD /* hair_animation_2@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "hair_animation_2@2x.png"; sourceTree = "<group>"; };
@@ -452,9 +452,9 @@
 		5D38DA78176D368300B793BD /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
-				5D38DA35176D283000B793BD /* KlinicSlabBold.otf */,
 				5D38DA36176D283000B793BD /* KlinicSlabBook.otf */,
 				5D388D7D176D996400FB6536 /* DIN-Bold.otf */,
+				5D388D94176E064F00FB6536 /* KlinicSlab2.otf */,
 			);
 			name = Fonts;
 			sourceTree = "<group>";
@@ -520,7 +520,6 @@
 				5D38DA22176CD48800B793BD /* ResultsViewController.xib in Resources */,
 				5D38DA30176D21C700B793BD /* search_bg@2x.png in Resources */,
 				5D38DA34176D220000B793BD /* SearchViewController.xib in Resources */,
-				5D38DA37176D283000B793BD /* KlinicSlabBold.otf in Resources */,
 				5D38DA38176D283000B793BD /* KlinicSlabBook.otf in Resources */,
 				5D38DA57176D2E5A00B793BD /* hair_animation_1@2x.png in Resources */,
 				5D38DA58176D2E5A00B793BD /* hair_animation_2@2x.png in Resources */,
@@ -613,6 +612,7 @@
 				5D388D8D176DA3AD00FB6536 /* grumpy@2x.png in Resources */,
 				5D388D8E176DA3AD00FB6536 /* happy@2x.png in Resources */,
 				5D388D90176DA3BC00FB6536 /* SummaryView.xib in Resources */,
+				5D388D95176E064F00FB6536 /* KlinicSlab2.otf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

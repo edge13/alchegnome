@@ -13,7 +13,7 @@
 - (void)awakeFromNib {
 	[super awakeFromNib];
 	
-	self.phraseLabel.font = [UIFont fontWithName:@"Klinic Slab" size:self.phraseLabel.font.pointSize];
+	self.phraseLabel.font = [UIFont fontWithName:@"Klinic Slab 2" size:self.phraseLabel.font.pointSize];
 	self.statsLabel.font = [UIFont fontWithName:@"Klinic Slab" size:self.statsLabel.font.pointSize];
 }
 

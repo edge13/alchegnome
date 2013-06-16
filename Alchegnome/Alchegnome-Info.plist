@@ -27,7 +27,7 @@
 	<key>UIAppFonts</key>
 	<array>
 		<string>KlinicSlabBook.otf</string>
-		<string>KlinicSlabBold.otf</string>
+		<string>KlinicSlab2.otf</string>
 		<string>DIN-Bold.otf</string>
 	</array>
 	<key>UIRequiredDeviceCapabilities</key>
